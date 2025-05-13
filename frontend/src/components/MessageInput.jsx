@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X, Mic, StopCircle, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -11,8 +11,13 @@ const MessageInput = () => {
   const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const inputRef = useRef(null);
   const { sendMessage } = useChatStore();
   const audioUrl = audioBlob ? URL.createObjectURL(audioBlob) : null;
+
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.focus();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -91,6 +96,25 @@ const MessageInput = () => {
 
   return (
     <div className="p-4 w-full">
+      {/* Audio Preview with mobile-friendly design */}
+      {audioBlob && (
+        <div className="mb-3 flex items-center gap-2 bg-base-200 rounded-lg p-2 shadow-sm">
+          <audio
+            src={audioUrl}
+            controls
+            className="w-full max-w-xs rounded"
+            style={{ minWidth: 120 }}
+          />
+          <button
+            onClick={removeAudio}
+            className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center ml-2"
+            type="button"
+            aria-label="Remove audio"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
       {/* Image Preview */}
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
@@ -111,27 +135,10 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      {/* Audio Preview */}
-      {audioBlob && (
-        <div className="mb-3 flex items-center gap-2">
-          <audio
-            src={audioUrl}
-            controls
-            className="w-40 rounded border border-zinc-700 bg-base-200"
-          />
-          <button
-            onClick={removeAudio}
-            className="w-5 h-5 rounded-full bg-base-300 flex items-center justify-center"
-            type="button"
-            aria-label="Remove audio"
-          >
-            <X className="size-3" />
-          </button>
-        </div>
-      )}
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
+        <div className="flex-1 flex gap-2 items-center">
           <input
+            ref={inputRef}
             type="text"
             className="w-full input input-bordered rounded-lg input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder={recording ? "Recording..." : "Type a message..."}
@@ -139,6 +146,7 @@ const MessageInput = () => {
             onChange={(e) => setText(e.target.value)}
             disabled={recording || isSending}
             aria-label="Message text"
+            autoComplete="off"
           />
           <input
             type="file"
@@ -162,13 +170,14 @@ const MessageInput = () => {
           <button
             type="button"
             className={`btn btn-circle ${
-              recording ? "bg-red-600 text-white" : "text-zinc-400"
+              recording ? "bg-red-600 text-white animate-pulse" : "text-zinc-400"
             }`}
             onClick={recording ? stopRecording : startRecording}
             aria-label={recording ? "Stop recording" : "Record voice message"}
             disabled={isSending}
+            style={{ minWidth: 40, minHeight: 40 }}
           >
-            {recording ? <StopCircle size={20} /> : <Mic size={20} />}
+            {recording ? <StopCircle size={24} /> : <Mic size={24} />}
           </button>
         </div>
         <button

@@ -98,6 +98,15 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+    // Listen for notification events from backend
+    socket.on("notification", (payload) => {
+      // Show a toast or browser notification
+      if (window.Notification && Notification.permission === "granted") {
+        new Notification(payload.title, { body: payload.body });
+      } else {
+        toast(payload.body || payload.title);
+      }
+    });
   },
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();

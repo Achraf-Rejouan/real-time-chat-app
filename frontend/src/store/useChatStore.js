@@ -43,6 +43,27 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Fix: get authUser from useAuthStore for markAsSeen
+  markAsSeen: async (userId) => {
+    try {
+      await axiosInstance.post(`/messages/seen/${userId}`);
+      const authUser = useAuthStore.getState().authUser;
+      set({
+        messages: get().messages.map(m => m.senderId !== authUser?._id ? { ...m, seen: true } : m)
+      });
+    } catch (error) {
+      // Ignore errors for now
+    }
+  },
+  deleteMessage: async (messageId) => {
+    try {
+      await axiosInstance.delete(`/messages/${messageId}`);
+      set({ messages: get().messages.filter(m => m._id !== messageId) });
+    } catch (error) {
+      toast.error("Failed to delete message");
+    }
+  },
+
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
@@ -56,6 +77,13 @@ export const useChatStore = create((set, get) => ({
       set({
         messages: [...get().messages, newMessage],
       });
+    });
+
+    // Listen for notification events (for in-app badge or custom UI)
+    socket.on("notification", (payload) => {
+      // Optionally, you can update a notification badge or play a sound here
+      // Example: set({ hasNewNotification: true });
+      // Example: new Audio('/notification.mp3').play();
     });
   },
 
