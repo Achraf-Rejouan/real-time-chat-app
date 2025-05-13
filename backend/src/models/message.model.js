@@ -18,6 +18,9 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    audio: {
+      type: String, // base64 or URL
+    },
   },
   { timestamps: true }
 );

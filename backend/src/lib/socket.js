@@ -32,6 +32,19 @@ io.on("connection", (socket) => {
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
+
+  // Voice chat signaling events
+  socket.on("voice-offer", ({ to, offer }) => {
+    io.to(to).emit("voice-offer", { from: socket.id, offer });
+  });
+
+  socket.on("voice-answer", ({ to, answer }) => {
+    io.to(to).emit("voice-answer", { from: socket.id, answer });
+  });
+
+  socket.on("voice-ice-candidate", ({ to, candidate }) => {
+    io.to(to).emit("voice-ice-candidate", { from: socket.id, candidate });
+  });
 });
 
 export { io, app, server };
