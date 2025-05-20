@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Mail, User, Lock, Loader2 } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [form, setForm] = useState({
+    fullName: authUser?.fullName || "",
+    email: authUser?.email || "",
+    password: "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -21,8 +27,24 @@ const ProfilePage = () => {
     };
   };
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    await updateProfile({
+      fullName: form.fullName,
+      email: form.email,
+      password: form.password || undefined,
+    });
+    setIsSaving(false);
+    setForm((f) => ({ ...f, password: "" })); // clear password field after save
+  };
+
   return (
-    <div className="h-screen pt-20">
+    <div className="min-h-screen pt-20 bg-base-100">
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
@@ -65,13 +87,21 @@ const ProfilePage = () => {
             </p>
           </div>
 
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSave}>
             <div className="space-y-1.5">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullName}</p>
+              <input
+                type="text"
+                name="fullName"
+                className="input input-bordered w-full bg-base-200"
+                value={form.fullName}
+                onChange={handleChange}
+                disabled={isSaving}
+                required
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -79,9 +109,42 @@ const ProfilePage = () => {
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
+              <input
+                type="email"
+                name="email"
+                className="input input-bordered w-full bg-base-200"
+                value={form.email}
+                onChange={handleChange}
+                disabled={isSaving}
+                required
+              />
             </div>
-          </div>
+
+            <div className="space-y-1.5">
+              <div className="text-sm text-zinc-400 flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                New Password
+              </div>
+              <input
+                type="password"
+                name="password"
+                className="input input-bordered w-full bg-base-200"
+                value={form.password}
+                onChange={handleChange}
+                disabled={isSaving}
+                placeholder="Leave blank to keep current password"
+                minLength={6}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-full mt-4"
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="animate-spin" /> : "Save Changes"}
+            </button>
+          </form>
 
           <div className="mt-6 bg-base-300 rounded-xl p-6">
             <h2 className="text-lg font-medium  mb-4">Account Information</h2>

@@ -15,6 +15,7 @@ const SignUpPage = () => {
   });
 
   const { signup, isSigningUp } = useAuthStore();
+  const [message, setMessage] = useState("");
 
   const validateForm = () => {
     if (!formData.fullName.trim()) return toast.error("Full name is required");
@@ -28,10 +29,12 @@ const SignUpPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const success = validateForm();
-
-    if (success === true) signup(formData);
+    if (success === true) {
+      signup(formData).then((res) => {
+        if (res && res.message) setMessage(res.message);
+      });
+    }
   };
 
   return (
@@ -129,6 +132,7 @@ const SignUpPage = () => {
                 "Create Account"
               )}
             </button>
+            {message && <p className="text-green-600 text-center mt-2">{message}</p>}
           </form>
 
           <div className="text-center">

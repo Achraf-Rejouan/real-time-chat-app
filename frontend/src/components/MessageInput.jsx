@@ -95,7 +95,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full bg-base-200 rounded-b-xl shadow-inner">
       {/* Audio Preview with mobile-friendly design */}
       {audioBlob && (
         <div className="mb-3 flex items-center gap-2 bg-base-200 rounded-lg p-2 shadow-sm">
@@ -122,11 +122,11 @@ const MessageInput = () => {
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="w-20 h-20 object-cover rounded-lg border border-zinc-700 shadow-md"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300 flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300 flex items-center justify-center shadow"
               type="button"
               aria-label="Remove image"
             >
@@ -135,12 +135,12 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-base-100 rounded-xl px-3 py-2 shadow-md border border-base-300">
         <div className="flex-1 flex gap-2 items-center">
           <input
             ref={inputRef}
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full input input-bordered rounded-full input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-primary bg-base-100 placeholder:text-base-content/40"
             placeholder={recording ? "Recording..." : "Type a message..."}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -158,20 +158,21 @@ const MessageInput = () => {
           />
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle ${
-              imagePreview ? "text-emerald-500" : "text-zinc-400"
-            }`}
+            className={`btn btn-circle ${
+              imagePreview ? "text-emerald-500 bg-emerald-100" : "text-zinc-400 bg-base-200"
+            } border-none shadow-none hover:bg-emerald-200 flex sm:flex`}
             onClick={() => fileInputRef.current?.click()}
             aria-label="Attach image"
             disabled={isSending}
+            style={{ display: 'flex' }}
           >
             <Image size={20} />
           </button>
           <button
             type="button"
             className={`btn btn-circle ${
-              recording ? "bg-red-600 text-white animate-pulse" : "text-zinc-400"
-            }`}
+              recording ? "bg-red-600 text-white animate-pulse" : "text-zinc-400 bg-base-200"
+            } border-none shadow-none hover:bg-red-200`}
             onClick={recording ? stopRecording : startRecording}
             aria-label={recording ? "Stop recording" : "Record voice message"}
             disabled={isSending}
@@ -182,9 +183,10 @@ const MessageInput = () => {
         </div>
         <button
           type="submit"
-          className="btn btn-sm btn-circle bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center"
+          className="btn btn-circle btn-primary shadow-lg hover:scale-105 transition-transform duration-150 border-none text-white flex items-center justify-center"
           disabled={!text.trim() && !imagePreview && !audioBlob || isSending}
           aria-label="Send message"
+          style={{ minWidth: 44, minHeight: 44 }}
         >
           {isSending ? (
             <Loader2 className="animate-spin" size={22} />

@@ -90,19 +90,18 @@ export const sendMessage = async (req, res) => {
 export const markMessagesAsSeen = async (req, res) => {
   try {
     const { id: userId } = req.params;
-    const myId = req.user._id;
-    await Message.updateMany(
+    const myId = req.user._id;    await Message.updateMany(
       { senderId: userId, receiverId: myId, seen: { $ne: true } },
-      { $set: { seen: true } }
+      { $set: { seen: true, seenAt: new Date() } }
     );
     // Notify sender that their message was seen
     const senderSocketId = getReceiverSocketId(userId);
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("notification", {
+    if (senderSocketId) {      io.to(senderSocketId).emit("notification", {
         title: "Message Seen",
         body: `${req.user.name || 'Someone'} has seen your message.`,
         type: "seen",
         timestamp: new Date(),
+        seenAt: new Date(),
         userId: myId,
         userName: req.user.name || 'Someone',
         userAvatar: req.user.profilePic || null,
