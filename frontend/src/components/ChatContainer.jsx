@@ -42,6 +42,16 @@ const ChatContainer = () => {
     }
   }, [messages]);
 
+  // Utility to format seconds as mm:ss
+  function formatDuration(current, total) {
+    const t = isNaN(total) ? 0 : total;
+    const c = isNaN(current) ? 0 : current;
+    const s = Math.floor(t - c);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  }
+
   if (isMessagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
@@ -99,21 +109,44 @@ const ChatContainer = () => {
                 />
               )}
               {message.audio && (
-                <div className="flex items-center gap-2 py-1 px-2 rounded-full w-fit min-w-[90px] max-w-[220px]">
-                  <audio
-                    src={`data:audio/webm;base64,${message.audio}`}
-                    controls
-                    className="w-full min-w-[60px] max-w-[140px] h-8 bg-transparent border-none outline-none"
-                    style={{ boxShadow: 'none', background: 'none' }}
-                  />
-                  <button className="focus:outline-none ml-1" tabIndex="-1" aria-label="Play voice message" onClick={e => {
-                    const audio = e.currentTarget.previousSibling;
-                    if (audio.paused) audio.play(); else audio.pause();
-                  }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-blue-600 dark:text-blue-300">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.25v13.5m13.5-13.5v13.5M12 8.25v7.5" />
+                <div className="flex items-center gap-3 py-2 px-3 rounded-xl bg-primary text-primary-content shadow-md w-fit min-w-[120px] max-w-[320px]">
+                  <button
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-base-100 hover:bg-base-200 focus:outline-none transition-colors shadow"
+                    tabIndex="-1"
+                    aria-label="Play voice message"
+                    onClick={e => {
+                      const audio = e.currentTarget.nextSibling;
+                      if (audio.paused) audio.play(); else audio.pause();
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-primary">
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </button>
+                  {/* Static waveform SVG for visual effect */}
+                  <svg height="32" width="80" className="mx-2">
+                    <rect x="2" y="10" width="4" height="12" rx="2" fill="currentColor"/>
+                    <rect x="10" y="6" width="4" height="20" rx="2" fill="currentColor"/>
+                    <rect x="18" y="12" width="4" height="8" rx="2" fill="currentColor"/>
+                    <rect x="26" y="8" width="4" height="16" rx="2" fill="currentColor"/>
+                    <rect x="34" y="14" width="4" height="6" rx="2" fill="currentColor"/>
+                    <rect x="42" y="7" width="4" height="18" rx="2" fill="currentColor"/>
+                    <rect x="50" y="12" width="4" height="8" rx="2" fill="currentColor"/>
+                    <rect x="58" y="9" width="4" height="14" rx="2" fill="currentColor"/>
+                    <rect x="66" y="11" width="4" height="10" rx="2" fill="currentColor"/>
+                    <rect x="74" y="8" width="4" height="16" rx="2" fill="currentColor"/>
+                  </svg>
+                  <audio
+                    src={`data:audio/webm;base64,${message.audio}`}
+                    className="hidden"
+                    onTimeUpdate={e => {
+                      const durationSpan = e.currentTarget.nextSibling;
+                      if (durationSpan) durationSpan.textContent = formatDuration(e.currentTarget.currentTime, e.currentTarget.duration);
+                    }}
+                  />
+                  <span className="text-xs font-semibold min-w-[36px] text-right select-none">
+                    0:27
+                  </span>
                 </div>
               )}
               {message.text && <p className="break-words text-base leading-relaxed font-medium text-base-content" style={{ fontWeight: 500 }}>{message.text}</p>}

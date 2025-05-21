@@ -135,16 +135,17 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-base-100 rounded-xl px-3 py-2 shadow-md border border-base-300">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-base-100 rounded-xl px-2 py-2 shadow-md border border-base-300">
         <div className="flex-1 flex gap-2 items-center">
           <input
             ref={inputRef}
             type="text"
-            className="w-full input input-bordered rounded-full input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-primary bg-base-100 placeholder:text-base-content/40"
+            className="w-full input input-bordered rounded-full input-md focus:outline-none focus:ring-2 focus:ring-primary bg-base-100 placeholder:text-base-content/40 text-base min-h-[44px] sm:min-h-0"
             placeholder={recording ? "Recording..." : "Type a message..."}
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={recording || isSending}
+            style={{ fontSize: '1rem', paddingTop: 12, paddingBottom: 12 }}
             aria-label="Message text"
             autoComplete="off"
           />
