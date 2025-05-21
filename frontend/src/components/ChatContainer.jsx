@@ -42,13 +42,12 @@ const ChatContainer = () => {
     }
   }, [messages]);
 
-  // Utility to format seconds as mm:ss
+  // Utility to format seconds as mm:ss, with safe fallback
   function formatDuration(current, total) {
-    const t = isNaN(total) ? 0 : total;
-    const c = isNaN(current) ? 0 : current;
-    const s = Math.floor(t - c);
+    if (!isFinite(total) || isNaN(total) || total <= 0) return "--:--";
+    const s = Math.floor(total - current);
     const m = Math.floor(s / 60);
-    const sec = s % 60;
+    const sec = Math.abs(s % 60);
     return `${m}:${sec.toString().padStart(2, '0')}`;
   }
 
@@ -115,8 +114,10 @@ const ChatContainer = () => {
                     tabIndex="-1"
                     aria-label="Play voice message"
                     onClick={e => {
-                      const audio = e.currentTarget.nextSibling;
-                      if (audio.paused) audio.play(); else audio.pause();
+                      const audio = e.currentTarget.parentNode.querySelector('audio');
+                      if (audio) {
+                        if (audio.paused) audio.play(); else audio.pause();
+                      }
                     }}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-primary">
@@ -139,13 +140,17 @@ const ChatContainer = () => {
                   <audio
                     src={`data:audio/webm;base64,${message.audio}`}
                     className="hidden"
+                    onLoadedMetadata={e => {
+                      const durationSpan = e.currentTarget.parentNode.querySelector('.audio-duration');
+                      if (durationSpan) durationSpan.textContent = formatDuration(0, e.currentTarget.duration);
+                    }}
                     onTimeUpdate={e => {
-                      const durationSpan = e.currentTarget.nextSibling;
+                      const durationSpan = e.currentTarget.parentNode.querySelector('.audio-duration');
                       if (durationSpan) durationSpan.textContent = formatDuration(e.currentTarget.currentTime, e.currentTarget.duration);
                     }}
                   />
-                  <span className="text-xs font-semibold min-w-[36px] text-right select-none">
-                    0:27
+                  <span className="audio-duration text-xs font-semibold min-w-[36px] text-right select-none">
+                    0:00
                   </span>
                 </div>
               )}
